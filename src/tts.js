@@ -24,8 +24,8 @@ function updateVoiceSettingsUi(modelId) {
   const isV4 = modelId === ELEVEN_V4_MODEL;
   const v4Panel = document.getElementById("ttsSettingsV4");
   const standardPanel = document.getElementById("ttsSettingsStandard");
-  if (v4Panel) v4Panel.hidden = !isV4;
-  if (standardPanel) standardPanel.hidden = isV4;
+  v4Panel?.classList.toggle("is-active", isV4);
+  standardPanel?.classList.toggle("is-active", !isV4);
 }
 
 function readVoiceSettings(modelId) {

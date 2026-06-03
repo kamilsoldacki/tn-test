@@ -546,13 +546,20 @@ code {
 }
 
 .tts-settings-grid {
-  display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem 1.25rem;
 }
 
+.tts-settings-panel {
+  display: none;
+}
+
+.tts-settings-panel.is-active {
+  display: grid;
+}
+
 @media (max-width: 640px) {
-  .tts-settings-grid {
+  .tts-settings-panel.is-active {
     grid-template-columns: 1fr;
   }
 }
