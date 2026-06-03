@@ -3,6 +3,8 @@ import { TTS_MODELS } from "./models.js";
 
 const SAMPLE_COUNT = 3;
 const ELEVEN_V4_MODEL = "eleven_v4";
+const TTS_OUTPUT_FORMAT = "mp3_44100_192";
+const TTS_LANGUAGE_CODE = "en";
 const TTS_PLACEHOLDER_DEFAULT =
   "Start typing here or paste any text you want to turn into lifelike speech...";
 const TTS_PLACEHOLDER_V4 =
@@ -83,14 +85,34 @@ function showTtsError(el, msg) {
   el.textContent = msg;
 }
 
-async function fetchTtsAudio(voiceId, text, modelId, voiceSettings) {
-  const synthesisText = prepareTtsText(text, modelId);
-  const payload = {
-    voice_id: voiceId,
+function buildTtsRequestBody(synthesisText, modelId, voiceSettings) {
+  return {
     text: synthesisText,
     model_id: modelId,
     voice_settings: voiceSettings,
+    apply_text_normalization: "on",
+    language_code: TTS_LANGUAGE_CODE,
+    use_pvc_as_ivc: false,
   };
+}
+
+function buildTtsApiUrl(voiceId) {
+  const url = new URL(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`);
+  url.searchParams.set("output_format", TTS_OUTPUT_FORMAT);
+  return url.toString();
+}
+
+function buildTtsPayload(voiceId, synthesisText, modelId, voiceSettings) {
+  return {
+    voice_id: voiceId,
+    output_format: TTS_OUTPUT_FORMAT,
+    ...buildTtsRequestBody(synthesisText, modelId, voiceSettings),
+  };
+}
+
+async function fetchTtsAudio(voiceId, text, modelId, voiceSettings) {
+  const synthesisText = prepareTtsText(text, modelId);
+  const payload = buildTtsPayload(voiceId, synthesisText, modelId, voiceSettings);
 
   const useLocalProxy =
     import.meta.env.DEV && import.meta.env.VITE_DEV_USE_TOKEN_SERVER !== "false";
@@ -121,18 +143,14 @@ async function fetchTtsAudio(voiceId, text, modelId, voiceSettings) {
     );
   }
 
-  const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+  const res = await fetch(buildTtsApiUrl(voiceId), {
     method: "POST",
     headers: {
       "xi-api-key": apiKey,
       "Content-Type": "application/json",
       Accept: "audio/mpeg",
     },
-    body: JSON.stringify({
-      text: synthesisText,
-      model_id: modelId,
-      voice_settings: voiceSettings,
-    }),
+    body: JSON.stringify(buildTtsRequestBody(synthesisText, modelId, voiceSettings)),
   });
 
   if (!res.ok) {

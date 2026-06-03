@@ -42,7 +42,16 @@ app.get("/api/token", async (req, res) => {
 
 app.post("/api/tts", async (req, res) => {
   try {
-    const { voice_id, text, model_id, voice_settings } = req.body ?? {};
+    const {
+      voice_id,
+      text,
+      model_id,
+      voice_settings,
+      output_format,
+      apply_text_normalization,
+      language_code,
+      use_pvc_as_ivc,
+    } = req.body ?? {};
     if (!voice_id || !text || !model_id) {
       return res.status(400).json({ error: "voice_id, text, and model_id are required" });
     }
@@ -50,12 +59,21 @@ app.post("/api/tts", async (req, res) => {
       return res.status(500).json({ error: "XI_API_KEY is not configured" });
     }
 
-    const body = { text, model_id };
+    const url = new URL(`https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`);
+    url.searchParams.set("output_format", output_format || "mp3_44100_192");
+
+    const body = {
+      text,
+      model_id,
+      apply_text_normalization: apply_text_normalization ?? "on",
+      language_code: language_code ?? "en",
+      use_pvc_as_ivc: use_pvc_as_ivc ?? false,
+    };
     if (voice_settings && typeof voice_settings === "object") {
       body.voice_settings = voice_settings;
     }
 
-    const upstream = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`, {
+    const upstream = await fetch(url.toString(), {
       method: "POST",
       headers: {
         "xi-api-key": process.env.XI_API_KEY,
