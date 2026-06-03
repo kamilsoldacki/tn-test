@@ -1,5 +1,6 @@
 import { Conversation } from "@elevenlabs/client";
-import { VOICES } from "./voices.js";
+import { populateVoiceSelect } from "./voices.js";
+import { initTtsPanel } from "./tts.js";
 import "./styles.css";
 
 const AGENT_ID = "agent_5901kt6de2mzfdzvry91bdndqznf";
@@ -21,12 +22,8 @@ const callSurface = document.querySelector(".call-surface");
 const callLabel = document.getElementById("callLabel");
 const modeLine = document.getElementById("modeLine");
 
-for (const v of VOICES) {
-  const opt = document.createElement("option");
-  opt.value = v.id;
-  opt.textContent = v.label;
-  voiceSelect.appendChild(opt);
-}
+populateVoiceSelect(voiceSelect);
+initTtsPanel();
 
 let conversation = null;
 

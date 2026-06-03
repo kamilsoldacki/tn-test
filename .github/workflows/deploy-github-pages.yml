@@ -51,11 +51,13 @@ jobs:
         run: npm install --no-audit --no-fund
 
       # Optional Variables: VITE_PAGES_FORCE_WEBRTC, VITE_BRANCH_ID, VITE_USE_WEBSOCKET, …
+      # Optional Secret: VITE_XI_API_KEY — ElevenLabs key for Text-to-speech on GitHub Pages (Settings → Secrets → Actions)
       - name: Build
         env:
           VITE_BASE_PATH: ${{ steps.vite_base.outputs.path }}
           VITE_PAGES_FORCE_WEBRTC: ${{ vars.VITE_PAGES_FORCE_WEBRTC }}
           VITE_BRANCH_ID: ${{ vars.VITE_BRANCH_ID }}
+          VITE_XI_API_KEY: ${{ secrets.VITE_XI_API_KEY }}
         run: npm run build
 
       - name: Verify build is bundled (not raw /src/)

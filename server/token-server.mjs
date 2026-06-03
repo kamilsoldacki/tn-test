@@ -2,6 +2,8 @@ import "dotenv/config";
 import express from "express";
 
 const app = express();
+app.use(express.json({ limit: "32kb" }));
+
 const PORT = Number(process.env.TOKEN_SERVER_PORT || 3456);
 
 const AGENT_ID =
@@ -32,6 +34,39 @@ app.get("/api/token", async (req, res) => {
       return res.status(upstream.status).type("application/json").send(text);
     }
     res.type("application/json").send(text);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: String(e?.message || e) });
+  }
+});
+
+app.post("/api/tts", async (req, res) => {
+  try {
+    const { voice_id, text, model_id } = req.body ?? {};
+    if (!voice_id || !text || !model_id) {
+      return res.status(400).json({ error: "voice_id, text, and model_id are required" });
+    }
+    if (!process.env.XI_API_KEY) {
+      return res.status(500).json({ error: "XI_API_KEY is not configured" });
+    }
+
+    const upstream = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`, {
+      method: "POST",
+      headers: {
+        "xi-api-key": process.env.XI_API_KEY,
+        "Content-Type": "application/json",
+        Accept: "audio/mpeg",
+      },
+      body: JSON.stringify({ text, model_id }),
+    });
+
+    if (!upstream.ok) {
+      const detail = await upstream.text();
+      return res.status(upstream.status).type("application/json").send(detail);
+    }
+
+    const audio = Buffer.from(await upstream.arrayBuffer());
+    res.type("audio/mpeg").send(audio);
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: String(e?.message || e) });
