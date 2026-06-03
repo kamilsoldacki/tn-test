@@ -67,8 +67,10 @@ app.post("/api/tts", async (req, res) => {
       model_id,
       apply_text_normalization: apply_text_normalization ?? "on",
       language_code: language_code ?? "en",
-      use_pvc_as_ivc: use_pvc_as_ivc ?? false,
     };
+    if (model_id !== "eleven_v4") {
+      body.use_pvc_as_ivc = use_pvc_as_ivc ?? false;
+    }
     if (voice_settings && typeof voice_settings === "object") {
       body.voice_settings = voice_settings;
     }

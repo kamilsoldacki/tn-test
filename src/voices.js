@@ -12,7 +12,7 @@ const LABELS = ["PVC1", "PVC2", "PVC4", "PVC5"];
 
 export const VOICES = IDS.map((id, i) => ({ id, label: LABELS[i] }));
 
-/** TTS-only voice — always listed in TTS; generation requires eleven_v4. */
+/** TTS-only IVC voice (not PVC) — always listed in TTS; generation requires eleven_v4. */
 export const TTS_PRE_VOICE = {
   id: "BnrUApbIYjABecF57E6V",
   label: "PRE",

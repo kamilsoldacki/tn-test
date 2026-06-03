@@ -114,15 +114,22 @@ function showTtsError(el, msg) {
   el.textContent = msg;
 }
 
-function buildTtsRequestBody(synthesisText, modelId, voiceSettings, voiceId) {
-  return {
+function buildTtsRequestBody(synthesisText, modelId, voiceSettings) {
+  const body = {
     text: synthesisText,
     model_id: modelId,
     voice_settings: voiceSettings,
     apply_text_normalization: "on",
     language_code: TTS_LANGUAGE_CODE,
-    use_pvc_as_ivc: voiceId === TTS_PRE_VOICE.id,
   };
+
+  // eleven_v4: pass PVC or IVC voice_id directly — API rejects use_pvc_as_ivc on this model.
+  // flash / multilingual: use_pvc_as_ivc false keeps PVC1–PVC5 on their PVC clones (PRE is v4-only).
+  if (modelId !== ELEVEN_V4_MODEL) {
+    body.use_pvc_as_ivc = false;
+  }
+
+  return body;
 }
 
 function buildTtsApiUrl(voiceId) {
@@ -135,7 +142,7 @@ function buildTtsPayload(voiceId, synthesisText, modelId, voiceSettings) {
   return {
     voice_id: voiceId,
     output_format: TTS_OUTPUT_FORMAT,
-    ...buildTtsRequestBody(synthesisText, modelId, voiceSettings, voiceId),
+    ...buildTtsRequestBody(synthesisText, modelId, voiceSettings),
   };
 }
 
@@ -179,7 +186,7 @@ async function fetchTtsAudio(voiceId, text, modelId, voiceSettings) {
       "Content-Type": "application/json",
       Accept: "audio/mpeg",
     },
-    body: JSON.stringify(buildTtsRequestBody(synthesisText, modelId, voiceSettings, voiceId)),
+    body: JSON.stringify(buildTtsRequestBody(synthesisText, modelId, voiceSettings)),
   });
 
   if (!res.ok) {
