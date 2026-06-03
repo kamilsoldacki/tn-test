@@ -1,4 +1,4 @@
-import { VOICES, populateVoiceSelect } from "./voices.js";
+import { TTS_PRE_VOICE, populateTtsVoiceSelect, voiceLabelForId } from "./voices.js";
 import { TTS_MODELS } from "./models.js";
 
 const SAMPLE_COUNT = 3;
@@ -15,9 +15,12 @@ function updateTtsPlaceholder(textInput, modelId) {
     modelId === ELEVEN_V4_MODEL ? TTS_PLACEHOLDER_V4 : TTS_PLACEHOLDER_DEFAULT;
 }
 
-function prepareTtsText(text, modelId) {
+function prepareTtsText(text, modelId, voiceId) {
   if (modelId !== ELEVEN_V4_MODEL) {
     return text;
+  }
+  if (voiceId === TTS_PRE_VOICE.id) {
+    return `[subtle Lancashire accent] ${text} [pause]`;
   }
   return `${text} [pause]`;
 }
@@ -85,14 +88,14 @@ function showTtsError(el, msg) {
   el.textContent = msg;
 }
 
-function buildTtsRequestBody(synthesisText, modelId, voiceSettings) {
+function buildTtsRequestBody(synthesisText, modelId, voiceSettings, voiceId) {
   return {
     text: synthesisText,
     model_id: modelId,
     voice_settings: voiceSettings,
     apply_text_normalization: "on",
     language_code: TTS_LANGUAGE_CODE,
-    use_pvc_as_ivc: false,
+    use_pvc_as_ivc: voiceId === TTS_PRE_VOICE.id,
   };
 }
 
@@ -106,12 +109,12 @@ function buildTtsPayload(voiceId, synthesisText, modelId, voiceSettings) {
   return {
     voice_id: voiceId,
     output_format: TTS_OUTPUT_FORMAT,
-    ...buildTtsRequestBody(synthesisText, modelId, voiceSettings),
+    ...buildTtsRequestBody(synthesisText, modelId, voiceSettings, voiceId),
   };
 }
 
 async function fetchTtsAudio(voiceId, text, modelId, voiceSettings) {
-  const synthesisText = prepareTtsText(text, modelId);
+  const synthesisText = prepareTtsText(text, modelId, voiceId);
   const payload = buildTtsPayload(voiceId, synthesisText, modelId, voiceSettings);
 
   const useLocalProxy =
@@ -150,7 +153,7 @@ async function fetchTtsAudio(voiceId, text, modelId, voiceSettings) {
       "Content-Type": "application/json",
       Accept: "audio/mpeg",
     },
-    body: JSON.stringify(buildTtsRequestBody(synthesisText, modelId, voiceSettings)),
+    body: JSON.stringify(buildTtsRequestBody(synthesisText, modelId, voiceSettings, voiceId)),
   });
 
   if (!res.ok) {
@@ -165,10 +168,6 @@ async function fetchTtsAudio(voiceId, text, modelId, voiceSettings) {
   }
 
   return res.blob();
-}
-
-function voiceLabelForId(voiceId) {
-  return VOICES.find((v) => v.id === voiceId)?.label?.toLowerCase() || "voice";
 }
 
 function buildDownloadName(voiceId, index) {
@@ -222,7 +221,7 @@ export function initTtsPanel() {
     return;
   }
 
-  populateVoiceSelect(voiceSelect);
+  populateTtsVoiceSelect(voiceSelect, modelSelect.value);
   for (const m of TTS_MODELS) {
     const opt = document.createElement("option");
     opt.value = m.id;
@@ -233,6 +232,7 @@ export function initTtsPanel() {
   updateTtsPlaceholder(textInput, modelSelect.value);
   updateVoiceSettingsUi(modelSelect.value);
   modelSelect.addEventListener("change", () => {
+    populateTtsVoiceSelect(voiceSelect, modelSelect.value);
     updateTtsPlaceholder(textInput, modelSelect.value);
     updateVoiceSettingsUi(modelSelect.value);
   });

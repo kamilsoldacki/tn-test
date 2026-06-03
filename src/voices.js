@@ -1,5 +1,5 @@
 /**
- * ElevenLabs voice_id values for the dropdown (Tilly Norwood PVC1, PVC2, PVC4, PVC5).
+ * ElevenLabs voice_id values for the agent and TTS (Tilly Norwood PVC1, PVC2, PVC4, PVC5).
  */
 const IDS = [
   "8PFKHwg70zjSRTfDg4hk",
@@ -12,6 +12,12 @@ const LABELS = ["PVC1", "PVC2", "PVC4", "PVC5"];
 
 export const VOICES = IDS.map((id, i) => ({ id, label: LABELS[i] }));
 
+/** TTS-only voice — shown in the TTS dropdown when eleven_v4 is selected. */
+export const TTS_PRE_VOICE = {
+  id: "BnrUApbIYjABecF57E6V",
+  label: "PRE",
+};
+
 export function populateVoiceSelect(selectEl) {
   for (const v of VOICES) {
     const opt = document.createElement("option");
@@ -19,4 +25,35 @@ export function populateVoiceSelect(selectEl) {
     opt.textContent = v.label;
     selectEl.appendChild(opt);
   }
+}
+
+export function populateTtsVoiceSelect(selectEl, modelId) {
+  const previous = selectEl.value;
+  selectEl.replaceChildren();
+
+  for (const v of VOICES) {
+    const opt = document.createElement("option");
+    opt.value = v.id;
+    opt.textContent = v.label;
+    selectEl.appendChild(opt);
+  }
+
+  if (modelId === "eleven_v4") {
+    const opt = document.createElement("option");
+    opt.value = TTS_PRE_VOICE.id;
+    opt.textContent = TTS_PRE_VOICE.label;
+    selectEl.appendChild(opt);
+  }
+
+  const optionValues = [...selectEl.options].map((o) => o.value);
+  if (optionValues.includes(previous)) {
+    selectEl.value = previous;
+  }
+}
+
+export function voiceLabelForId(voiceId) {
+  if (voiceId === TTS_PRE_VOICE.id) {
+    return TTS_PRE_VOICE.label.toLowerCase();
+  }
+  return VOICES.find((v) => v.id === voiceId)?.label?.toLowerCase() || "voice";
 }
