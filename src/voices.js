@@ -1,29 +1,13 @@
 /**
- * ElevenLabs voice_id values for the dropdown. Edit labels to match names in your library.
+ * ElevenLabs voice_id values for the dropdown (Tilly Norwood PVC1–PVC4).
  */
 const IDS = [
-  "Astm9kBg2GoJpvmLehN0",
-  "9B6qQdh3qf1JUYTPPqV7",
-  "YzYhZnqss746aWqRJC9H",
-  "XCwC1YU8b4SGMtnX5Qwr",
-  "psS9TrEzDPCk10harX8d",
-  "vqmq3bd63istIYHZxsYV",
-  "QrwRvbpswBgwmOulozTX",
-  "loJfO8jlTj6khCTCwavv",
-  "Ek1n0msUbTIdejEKyNMW",
-  "266TYS22fdxXLTfICz7W",
-  "Uo7HdPMCyPjRirKwQKtd",
-  "YFPFGVR1mImNYR9wDTpM",
-  "0F814WpHip5Wll1X8d5d",
-  "ZtkBZMkcwNBEP6zu1N7K",
-  "E7HyWrwFtIWIOHyBnzr3",
-  "cyy2EulTZZtaeMqQob9M",
+  "8PFKHwg70zjSRTfDg4hk",
+  "7hDCGMwLtzZG6Zh6ZUVC",
+  "Sg8O60o1UrYZlIw1eYvE",
+  "vRtxFKWJzHlaYdQSyUqs",
 ];
 
-function shortLabel(id, index) {
-  const n = String(index + 1).padStart(2, "0");
-  const hint = id.length > 14 ? `${id.slice(0, 14)}…` : id;
-  return `Voice ${n} · ${hint}`;
-}
+const LABELS = ["PVC1", "PVC2", "PVC3", "PVC4"];
 
-export const VOICES = IDS.map((id, i) => ({ id, label: shortLabel(id, i) }));
+export const VOICES = IDS.map((id, i) => ({ id, label: LABELS[i] }));

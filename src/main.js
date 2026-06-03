@@ -2,11 +2,11 @@ import { Conversation } from "@elevenlabs/client";
 import { VOICES } from "./voices.js";
 import "./styles.css";
 
-const AGENT_ID = "agent_2401kpdcfbczeznsr4bkmr97c7p1";
+const AGENT_ID = "agent_5901kt6de2mzfdzvry91bdndqznf";
 const BRANCH_ID =
   import.meta.env.VITE_BRANCH_ID === "false"
     ? ""
-    : (import.meta.env.VITE_BRANCH_ID ?? "agtbrch_7601kpdcfd0de3prknkcrzz1z04f");
+    : (import.meta.env.VITE_BRANCH_ID ?? "agtbrch_9101kt6de3cefmz8yg7jbfq2g726");
 
 const CONVAI_TOKEN_SOURCE = "js_sdk";
 const CONVAI_TOKEN_VERSION = "1.2.1";
