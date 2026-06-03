@@ -1,4 +1,4 @@
-import { TTS_PRE_VOICE, populateTtsVoiceSelect, voiceLabelForId } from "./voices.js";
+import { TTS_PRE_VOICE, VOICES, populateTtsVoiceSelect, voiceLabelForId } from "./voices.js";
 import { TTS_MODELS } from "./models.js";
 
 const SAMPLE_COUNT = 3;
@@ -13,6 +13,32 @@ const TTS_PLACEHOLDER_V4 =
 function updateTtsPlaceholder(textInput, modelId) {
   textInput.placeholder =
     modelId === ELEVEN_V4_MODEL ? TTS_PLACEHOLDER_V4 : TTS_PLACEHOLDER_DEFAULT;
+}
+
+function updateTtsPanelForModel(textInput, modelId) {
+  updateTtsPlaceholder(textInput, modelId);
+  updateVoiceSettingsUi(modelId);
+}
+
+function onTtsVoiceChange(voiceSelect, modelSelect, textInput) {
+  if (voiceSelect.value === TTS_PRE_VOICE.id) {
+    modelSelect.value = ELEVEN_V4_MODEL;
+  }
+  updateTtsPanelForModel(textInput, modelSelect.value);
+}
+
+function onTtsModelChange(voiceSelect, modelSelect, textInput) {
+  if (modelSelect.value !== ELEVEN_V4_MODEL && voiceSelect.value === TTS_PRE_VOICE.id) {
+    voiceSelect.value = VOICES[0].id;
+  }
+  updateTtsPanelForModel(textInput, modelSelect.value);
+}
+
+function ensurePreUsesV4(voiceSelect, modelSelect, textInput) {
+  if (voiceSelect.value === TTS_PRE_VOICE.id && modelSelect.value !== ELEVEN_V4_MODEL) {
+    modelSelect.value = ELEVEN_V4_MODEL;
+    updateTtsPanelForModel(textInput, modelSelect.value);
+  }
 }
 
 function prepareTtsText(text, modelId, voiceId) {
@@ -221,7 +247,7 @@ export function initTtsPanel() {
     return;
   }
 
-  populateTtsVoiceSelect(voiceSelect, modelSelect.value);
+  populateTtsVoiceSelect(voiceSelect);
   for (const m of TTS_MODELS) {
     const opt = document.createElement("option");
     opt.value = m.id;
@@ -229,18 +255,22 @@ export function initTtsPanel() {
     modelSelect.appendChild(opt);
   }
 
-  updateTtsPlaceholder(textInput, modelSelect.value);
-  updateVoiceSettingsUi(modelSelect.value);
+  updateTtsPanelForModel(textInput, modelSelect.value);
+
+  voiceSelect.addEventListener("change", () => {
+    onTtsVoiceChange(voiceSelect, modelSelect, textInput);
+  });
+
   modelSelect.addEventListener("change", () => {
-    populateTtsVoiceSelect(voiceSelect, modelSelect.value);
-    updateTtsPlaceholder(textInput, modelSelect.value);
-    updateVoiceSettingsUi(modelSelect.value);
+    onTtsModelChange(voiceSelect, modelSelect, textInput);
   });
   bindVoiceSettingControls();
 
   let revokeFns = [];
 
   generateBtn.addEventListener("click", async () => {
+    ensurePreUsesV4(voiceSelect, modelSelect, textInput);
+
     const text = textInput.value.trim();
     const voiceId = voiceSelect.value;
     const modelId = modelSelect.value;

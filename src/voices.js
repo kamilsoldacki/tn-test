@@ -12,7 +12,7 @@ const LABELS = ["PVC1", "PVC2", "PVC4", "PVC5"];
 
 export const VOICES = IDS.map((id, i) => ({ id, label: LABELS[i] }));
 
-/** TTS-only voice — shown in the TTS dropdown when eleven_v4 is selected. */
+/** TTS-only voice — always listed in TTS; generation requires eleven_v4. */
 export const TTS_PRE_VOICE = {
   id: "BnrUApbIYjABecF57E6V",
   label: "PRE",
@@ -27,7 +27,7 @@ export function populateVoiceSelect(selectEl) {
   }
 }
 
-export function populateTtsVoiceSelect(selectEl, modelId) {
+export function populateTtsVoiceSelect(selectEl) {
   const previous = selectEl.value;
   selectEl.replaceChildren();
 
@@ -38,12 +38,10 @@ export function populateTtsVoiceSelect(selectEl, modelId) {
     selectEl.appendChild(opt);
   }
 
-  if (modelId === "eleven_v4") {
-    const opt = document.createElement("option");
-    opt.value = TTS_PRE_VOICE.id;
-    opt.textContent = TTS_PRE_VOICE.label;
-    selectEl.appendChild(opt);
-  }
+  const preOpt = document.createElement("option");
+  preOpt.value = TTS_PRE_VOICE.id;
+  preOpt.textContent = TTS_PRE_VOICE.label;
+  selectEl.appendChild(preOpt);
 
   const optionValues = [...selectEl.options].map((o) => o.value);
   if (optionValues.includes(previous)) {
