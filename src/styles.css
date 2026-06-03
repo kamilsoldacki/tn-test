@@ -529,6 +529,84 @@ code {
   gap: 0.45rem;
 }
 
+.tts-settings {
+  margin: 0;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-lg);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.tts-settings-legend {
+  padding: 0 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.tts-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .tts-settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tts-setting {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.tts-setting-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.tts-setting-value {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  tab-size: 2;
+}
+
+.tts-range {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--text);
+  cursor: pointer;
+}
+
+.tts-setting-check {
+  justify-content: center;
+}
+
+.tts-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.875rem;
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+}
+
+.tts-check input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--text);
+  cursor: pointer;
+}
+
 .tts-label {
   font-size: 0.8125rem;
   font-weight: 600;

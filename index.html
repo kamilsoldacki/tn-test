@@ -247,13 +247,101 @@ This is not optional. The Northern/Lancashire voice is part of the character's i
               <select id="ttsModelSelect" class="select"></select>
             </div>
           </div>
+          <fieldset class="tts-settings">
+            <legend class="tts-settings-legend">Voice settings</legend>
+            <div id="ttsSettingsV4" class="tts-settings-grid" hidden>
+              <div class="tts-field">
+                <label class="tts-label" for="ttsV4Stability">Stability</label>
+                <select id="ttsV4Stability" class="select">
+                  <option value="0">Creative</option>
+                  <option value="0.5" selected>Natural</option>
+                  <option value="1">Robust</option>
+                </select>
+              </div>
+              <div class="tts-setting">
+                <div class="tts-setting-head">
+                  <label class="tts-label" for="ttsV4Speed">Speed</label>
+                  <output class="tts-setting-value" id="ttsV4SpeedValue" for="ttsV4Speed">1.00</output>
+                </div>
+                <input
+                  type="range"
+                  id="ttsV4Speed"
+                  class="tts-range"
+                  min="0.5"
+                  max="2"
+                  step="0.05"
+                  value="1"
+                />
+              </div>
+            </div>
+            <div id="ttsSettingsStandard" class="tts-settings-grid">
+              <div class="tts-setting">
+                <div class="tts-setting-head">
+                  <label class="tts-label" for="ttsStability">Stability</label>
+                  <output class="tts-setting-value" id="ttsStabilityValue" for="ttsStability">0.50</output>
+                </div>
+                <input
+                  type="range"
+                  id="ttsStability"
+                  class="tts-range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0.5"
+                />
+              </div>
+              <div class="tts-setting">
+                <div class="tts-setting-head">
+                  <label class="tts-label" for="ttsSimilarity">Similarity boost</label>
+                  <output class="tts-setting-value" id="ttsSimilarityValue" for="ttsSimilarity">0.75</output>
+                </div>
+                <input
+                  type="range"
+                  id="ttsSimilarity"
+                  class="tts-range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0.75"
+                />
+              </div>
+              <div class="tts-setting">
+                <div class="tts-setting-head">
+                  <label class="tts-label" for="ttsStyle">Style</label>
+                  <output class="tts-setting-value" id="ttsStyleValue" for="ttsStyle">0.00</output>
+                </div>
+                <input type="range" id="ttsStyle" class="tts-range" min="0" max="1" step="0.01" value="0" />
+              </div>
+              <div class="tts-setting">
+                <div class="tts-setting-head">
+                  <label class="tts-label" for="ttsSpeed">Speed</label>
+                  <output class="tts-setting-value" id="ttsSpeedValue" for="ttsSpeed">1.00</output>
+                </div>
+                <input
+                  type="range"
+                  id="ttsSpeed"
+                  class="tts-range"
+                  min="0.25"
+                  max="4"
+                  step="0.05"
+                  value="1"
+                />
+              </div>
+              <div class="tts-setting tts-setting-check">
+                <label class="tts-check">
+                  <input type="checkbox" id="ttsSpeakerBoost" checked />
+                  <span>Speaker boost</span>
+                </label>
+              </div>
+            </div>
+          </fieldset>
           <div class="tts-field tts-field-text">
             <label class="tts-label" for="ttsText">Text</label>
             <textarea
               id="ttsText"
               class="tts-textarea"
               rows="4"
-              placeholder="I'm Tilly — an AI character. Not flesh and bones, but here for the conversation."
+              placeholder="Start typing here or paste any text you want to turn into lifelike speech..."
             ></textarea>
           </div>
           <div class="tts-actions">

@@ -42,12 +42,17 @@ app.get("/api/token", async (req, res) => {
 
 app.post("/api/tts", async (req, res) => {
   try {
-    const { voice_id, text, model_id } = req.body ?? {};
+    const { voice_id, text, model_id, voice_settings } = req.body ?? {};
     if (!voice_id || !text || !model_id) {
       return res.status(400).json({ error: "voice_id, text, and model_id are required" });
     }
     if (!process.env.XI_API_KEY) {
       return res.status(500).json({ error: "XI_API_KEY is not configured" });
+    }
+
+    const body = { text, model_id };
+    if (voice_settings && typeof voice_settings === "object") {
+      body.voice_settings = voice_settings;
     }
 
     const upstream = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`, {
@@ -57,7 +62,7 @@ app.post("/api/tts", async (req, res) => {
         "Content-Type": "application/json",
         Accept: "audio/mpeg",
       },
-      body: JSON.stringify({ text, model_id }),
+      body: JSON.stringify(body),
     });
 
     if (!upstream.ok) {

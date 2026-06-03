@@ -3,12 +3,73 @@ import { TTS_MODELS } from "./models.js";
 
 const SAMPLE_COUNT = 3;
 const ELEVEN_V4_MODEL = "eleven_v4";
+const TTS_PLACEHOLDER_DEFAULT =
+  "Start typing here or paste any text you want to turn into lifelike speech...";
+const TTS_PLACEHOLDER_V4 =
+  "Type your text with audio tags like [laughs] to turn into expressive speech...";
+
+function updateTtsPlaceholder(textInput, modelId) {
+  textInput.placeholder =
+    modelId === ELEVEN_V4_MODEL ? TTS_PLACEHOLDER_V4 : TTS_PLACEHOLDER_DEFAULT;
+}
 
 function prepareTtsText(text, modelId) {
   if (modelId !== ELEVEN_V4_MODEL) {
     return text;
   }
-  return `[subtle Lancashire accent] ${text} [pause]`;
+  return `${text} [pause]`;
+}
+
+function updateVoiceSettingsUi(modelId) {
+  const isV4 = modelId === ELEVEN_V4_MODEL;
+  const v4Panel = document.getElementById("ttsSettingsV4");
+  const standardPanel = document.getElementById("ttsSettingsStandard");
+  if (v4Panel) v4Panel.hidden = !isV4;
+  if (standardPanel) standardPanel.hidden = isV4;
+}
+
+function readVoiceSettings(modelId) {
+  if (modelId === ELEVEN_V4_MODEL) {
+    return {
+      stability: Number(document.getElementById("ttsV4Stability")?.value ?? 0.5),
+      speed: Number(document.getElementById("ttsV4Speed")?.value ?? 1),
+    };
+  }
+
+  return {
+    stability: Number(document.getElementById("ttsStability")?.value ?? 0.5),
+    similarity_boost: Number(document.getElementById("ttsSimilarity")?.value ?? 0.75),
+    style: Number(document.getElementById("ttsStyle")?.value ?? 0),
+    speed: Number(document.getElementById("ttsSpeed")?.value ?? 1),
+    use_speaker_boost: Boolean(document.getElementById("ttsSpeakerBoost")?.checked),
+  };
+}
+
+function formatSettingValue(value) {
+  return value.toFixed(2);
+}
+
+function bindVoiceSettingControls() {
+  const bindings = [
+    { inputId: "ttsStability", outputId: "ttsStabilityValue" },
+    { inputId: "ttsSimilarity", outputId: "ttsSimilarityValue" },
+    { inputId: "ttsStyle", outputId: "ttsStyleValue" },
+    { inputId: "ttsSpeed", outputId: "ttsSpeedValue" },
+    { inputId: "ttsV4Speed", outputId: "ttsV4SpeedValue" },
+  ];
+
+  for (const { inputId, outputId } of bindings) {
+    const input = document.getElementById(inputId);
+    const output = document.getElementById(outputId);
+    if (!input || !output) continue;
+
+    const sync = () => {
+      output.textContent = formatSettingValue(Number(input.value));
+    };
+
+    sync();
+    input.addEventListener("input", sync);
+  }
 }
 
 function showTtsError(el, msg) {
@@ -22,9 +83,14 @@ function showTtsError(el, msg) {
   el.textContent = msg;
 }
 
-async function fetchTtsAudio(voiceId, text, modelId) {
+async function fetchTtsAudio(voiceId, text, modelId, voiceSettings) {
   const synthesisText = prepareTtsText(text, modelId);
-  const payload = { voice_id: voiceId, text: synthesisText, model_id: modelId };
+  const payload = {
+    voice_id: voiceId,
+    text: synthesisText,
+    model_id: modelId,
+    voice_settings: voiceSettings,
+  };
 
   const useLocalProxy =
     import.meta.env.DEV && import.meta.env.VITE_DEV_USE_TOKEN_SERVER !== "false";
@@ -62,7 +128,11 @@ async function fetchTtsAudio(voiceId, text, modelId) {
       "Content-Type": "application/json",
       Accept: "audio/mpeg",
     },
-    body: JSON.stringify({ text: synthesisText, model_id: modelId }),
+    body: JSON.stringify({
+      text: synthesisText,
+      model_id: modelId,
+      voice_settings: voiceSettings,
+    }),
   });
 
   if (!res.ok) {
@@ -142,12 +212,21 @@ export function initTtsPanel() {
     modelSelect.appendChild(opt);
   }
 
+  updateTtsPlaceholder(textInput, modelSelect.value);
+  updateVoiceSettingsUi(modelSelect.value);
+  modelSelect.addEventListener("change", () => {
+    updateTtsPlaceholder(textInput, modelSelect.value);
+    updateVoiceSettingsUi(modelSelect.value);
+  });
+  bindVoiceSettingControls();
+
   let revokeFns = [];
 
   generateBtn.addEventListener("click", async () => {
     const text = textInput.value.trim();
     const voiceId = voiceSelect.value;
     const modelId = modelSelect.value;
+    const voiceSettings = readVoiceSettings(modelId);
 
     showTtsError(errorBox, null);
 
@@ -167,7 +246,9 @@ export function initTtsPanel() {
 
     try {
       const blobs = await Promise.all(
-        Array.from({ length: SAMPLE_COUNT }, () => fetchTtsAudio(voiceId, text, modelId)),
+        Array.from({ length: SAMPLE_COUNT }, () =>
+          fetchTtsAudio(voiceId, text, modelId, voiceSettings),
+        ),
       );
 
       blobs.forEach((blob, i) => {
