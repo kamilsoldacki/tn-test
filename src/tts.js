@@ -2,6 +2,14 @@ import { VOICES, populateVoiceSelect } from "./voices.js";
 import { TTS_MODELS } from "./models.js";
 
 const SAMPLE_COUNT = 3;
+const ELEVEN_V4_MODEL = "eleven_v4";
+
+function prepareTtsText(text, modelId) {
+  if (modelId !== ELEVEN_V4_MODEL) {
+    return text;
+  }
+  return `[subtle Lancashire accent] ${text} [pause]`;
+}
 
 function showTtsError(el, msg) {
   if (!el) return;
@@ -15,7 +23,8 @@ function showTtsError(el, msg) {
 }
 
 async function fetchTtsAudio(voiceId, text, modelId) {
-  const payload = { voice_id: voiceId, text, model_id: modelId };
+  const synthesisText = prepareTtsText(text, modelId);
+  const payload = { voice_id: voiceId, text: synthesisText, model_id: modelId };
 
   const useLocalProxy =
     import.meta.env.DEV && import.meta.env.VITE_DEV_USE_TOKEN_SERVER !== "false";
@@ -53,7 +62,7 @@ async function fetchTtsAudio(voiceId, text, modelId) {
       "Content-Type": "application/json",
       Accept: "audio/mpeg",
     },
-    body: JSON.stringify({ text, model_id: modelId }),
+    body: JSON.stringify({ text: synthesisText, model_id: modelId }),
   });
 
   if (!res.ok) {
