@@ -255,6 +255,7 @@ export function initTtsPanel() {
   }
 
   populateTtsVoiceSelect(voiceSelect);
+  modelSelect.replaceChildren();
   for (const m of TTS_MODELS) {
     const opt = document.createElement("option");
     opt.value = m.id;
